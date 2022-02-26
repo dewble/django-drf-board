@@ -19,6 +19,7 @@
 #     queryset = Comment.objects.all()
 #     serializer_class = CommentSerializer
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, GenericAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -27,9 +28,9 @@ from api2.serializers import CommentSerializer, PostListSerializer, PostRetrieve
 from blog.models import Post, Comment, Category, Tag
 
 
-class PostListAPIView(ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostListSerializer
+# class PostListAPIView(ListAPIView):
+#     queryset = Post.objects.all()
+#     serializer_class = PostListSerializer
 
 
 class PostRetrieveAPIView(RetrieveAPIView): # PostListAPIView와 queryset과 serializer_class가 다르지만 상속받는 view가 다르기 대문에 동작이 다르다
@@ -87,3 +88,15 @@ class PostLikeAPIView(GenericAPIView):
         instance.like += 1
         instance.save()
         return Response(instance.like)
+
+
+class PostPageNumberPagination(PageNumberPagination):
+    page_size = 3
+    # page_size_query_param = 'page_size'
+    # max_page_size = 1000
+
+
+class PostListAPIView(ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostListSerializer
+    pagination_class = PostPageNumberPagination
