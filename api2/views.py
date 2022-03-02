@@ -18,6 +18,8 @@
 # class CommentViewSet(viewsets.ModelViewSet):
 #     queryset = Comment.objects.all()
 #     serializer_class = CommentSerializer
+from collections import OrderedDict
+
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -33,7 +35,8 @@ from blog.models import Post, Comment, Category, Tag
 #     serializer_class = PostListSerializer
 
 
-class PostRetrieveAPIView(RetrieveAPIView): # PostListAPIView와 queryset과 serializer_class가 다르지만 상속받는 view가 다르기 대문에 동작이 다르다
+class PostRetrieveAPIView(
+    RetrieveAPIView):  # PostListAPIView와 queryset과 serializer_class가 다르지만 상속받는 view가 다르기 대문에 동작이 다르다
     queryset = Post.objects.all()
     serializer_class = PostRetrieveSerializer
 
@@ -92,11 +95,29 @@ class PostLikeAPIView(GenericAPIView):
 
 class PostPageNumberPagination(PageNumberPagination):
     page_size = 3
+
     # page_size_query_param = 'page_size'
     # max_page_size = 1000
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('postList', data),
+            ('pageCnt', self.page.paginator.num_pages),
+            ('CurPage', self.page.number)
+        ]))
 
 
 class PostListAPIView(ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostListSerializer
     pagination_class = PostPageNumberPagination
+
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': None,
+            'format': self.format_kwarg,
+            'view': self
+        }
