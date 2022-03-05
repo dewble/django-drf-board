@@ -155,3 +155,14 @@ class PostRetrieveAPIView(RetrieveAPIView):  # PostListAPIView와 queryset과 se
         serializer = self.get_serializer(instance=data) # data를 시리얼라이즈에 공급
         return Response(serializer.data) # 직렬화는 serializer.data를 호출할 때 발생한다
 
+
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': None,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
